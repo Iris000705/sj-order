@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Junior 周邊快速下單</title>
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif; }
+        body { background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 650px; }
+        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 25px; border: 1px solid #e1e4e8; }
+        .card-admin { border-top: 6px solid #28a745; display: none; }
+        .card-shop { border-top: 6px solid #0056b3; }
+        h2 { margin-top: 0; margin-bottom: 20px; font-size: 22px; color: #111; font-weight: 700; }
+        .form-group { margin-bottom: 24px; }
+        label { display: block; margin-bottom: 10px; font-weight: 600; font-size: 16px; color: #444; }
+        input[type="text"] { width: 100%; padding: 12px 16px; border: 1px solid #ccd1d9; border-radius: 8px; font-size: 16px; transition: all 0.2s; }
+        input[type="text"]:focus { border-color: #0056b3; box-shadow: 0 0 0 3px rgba(0,86,179,0.1); outline: none; }
+        
+        .item-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 10px; }
+
+        .block-btn { 
+            background: #ffffff; border: 2px solid #e1e4e8; border-radius: 10px; 
+            padding: 16px 8px; text-align: center; font-size: 16px; font-weight: bold; 
+            color: #444; cursor: pointer; transition: all 0.25s ease; 
+            display: flex; flex-direction: column; gap: 4px; justify-content: center; align-items: center;
+            user-select: none;
+        }
+        .block-btn .price-tag { font-size: 12px; font-weight: normal; color: #888; }
+        
+        .block-btn.active { 
+            background: #e6f0fa; border-color: #0056b3; color: #0056b3; 
+            box-shadow: 0 4px 8px rgba(0,86,179,0.15); transform: translateY(-2px); 
+        }
+        .block-btn.active .price-tag { color: #0056b3; font-weight: bold; }
+        
+        .block-btn.disabled { background: #f5f5f5; border-color: #eee; color: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+        .block-btn.disabled .price-tag { color: #ccc; }
+        
+        button.btn-main { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
+        .btn-submit { background-color: #0056b3; color: white; margin-top: 10px; }
+        .btn-submit:hover { background-color: #004085; }
+        .btn-admin { background-color: #28a745; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-admin:hover { background-color: #218838; }
+        .status-msg { margin-top: 15px; padding: 12px; border-radius: 8px; display: none; font-size: 15px; font-weight: 500; white-space: pre-line; }
+        .status-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card card-shop">
+            <h2>🛍️ Super Junior 周邊快速下單</h2>
+            <form id="orderForm">
+                <div class="form-group">
+                    <label for="customerName">訂購人姓名</label>
+                    <input type="text" id="customerName" placeholder="請輸入您的姓名或暱稱" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="instagramId">IG 帳號</label>
+                    <input type="text" id="instagramId" placeholder="請輸入您的 Instagram 帳號 (例如: sj_official)" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>抱枕 TWD1390+PHOTO CARD POUCH SET TWD360</label>
+                    <div id="pillowGrid" class="item-grid"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>19糰 TWD680+成員ID證件照 TWD420(不拆可多成員)</label>
+                    <div id="tuan19Grid" class="item-grid"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>20糰 TWD780+成員四格照片TWD320(不拆可多成員)</label>
+                    <div id="tuan20Grid" class="item-grid"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>手燈套 TWD790</label>
+                    <div id="lightstickGrid" class="item-grid"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>杯套 TWD300</label>
+                    <div id="cupSleeveGrid" class="item-grid"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>襯衫 TWD2100</label>
+                    <div id="shirtGrid" class="item-grid"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>其他商品</label>
+                    <div id="otherGrid" class="item-grid"></div>
+                </div>
+
+                <button type="submit" class="btn-main btn-submit">確認送出訂單</button>
+            </form>
+            <div id="statusMsg" class="status-msg"></div>
+        </div>
+
+        <div id="adminCard" class="card card-admin">
+            <h2>📊 後台訂單管理專區 (管理者限定)</h2>
+            <button class="btn-main btn-admin" onclick="exportToExcel()">📥 匯出 Excel 訂單報表</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        const ADMIN_KEY = 'sj888';
+
+        function checkAdminAccess() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const adminParam = urlParams.get('admin');
+            if (adminParam === ADMIN_KEY) {
+                document.getElementById('adminCard').style.display = 'block';
+            }
+        }
+
+        function showMessage(text, isSuccess) {
+            const msgDiv = document.getElementById('statusMsg');
+            msgDiv.textContent = text;
+            msgDiv.className = `status-msg ${isSuccess ? 'status-success' : 'status-error'}`;
+            msgDiv.style.display = 'block';
+            window.scrollTo({ top: msgDiv.offsetTop, behavior: 'smooth' });
+        }
+
+        async function fetchProducts() {
+            try {
+                const res = await fetch(`${API_URL}/products`);
+                const products = await res.json();
+                
+                const pillowGrid = document.getElementById('pillowGrid');
+                const tuan19Grid = document.getElementById('tuan19Grid');
+                const tuan20Grid = document.getElementById('tuan20Grid');
+                const lightstickGrid = document.getElementById('lightstickGrid');
+                const cupSleeveGrid = document.getElementById('cupSleeveGrid');
+                const shirtGrid = document.getElementById('shirtGrid');
+                const otherGrid = document.getElementById('otherGrid');
+                
+                pillowGrid.innerHTML = '';
+                tuan19Grid.innerHTML = '';
+                tuan20Grid.innerHTML = '';
+                lightstickGrid.innerHTML = '';
+                cupSleeveGrid.innerHTML = '';
+                shirtGrid.innerHTML = '';
+                otherGrid.innerHTML = '';
+
+                products.forEach(p => {
+                    const btn = document.createElement('div');
+                    let targetGrid = otherGrid;
+                    let cleanName = p.name;
+                    let displayPrice = `TWD ${p.price}`;
+
+                    // 分流九宮格與顯示價格設定
+                    if (p.name.includes('抱枕')) {
+                        targetGrid = pillowGrid;
+                        cleanName = p.name.split('-')[1] || p.name;
+                        displayPrice = 'TWD 1750';  // 💡 顯示 1750
+                    } else if (p.name.includes('19糰')) {
+                        targetGrid = tuan19Grid;
+                        cleanName = p.name.split('-')[1] || p.name;
+                        displayPrice = 'TWD 1100';  // 💡 顯示 1100
+                    } else if (p.name.includes('20糰')) {
+                        targetGrid = tuan20Grid;
+                        cleanName = p.name.split('-')[1] || p.name;
+                        displayPrice = 'TWD 1100';  // 💡 顯示 1100
+                    } else if (p.name.includes('手燈套')) {
+                        targetGrid = lightstickGrid;
+                        cleanName = p.name.split('-')[1] || p.name;
+                        displayPrice = 'TWD 790';
+                    } else if (p.name.includes('杯套')) {
+                        targetGrid = cupSleeveGrid;
+                        cleanName = p.name.split('-')[1] || p.name;
+                        displayPrice = 'TWD 300';
+                    } else if (p.name.includes('襯衫')) {
+                        targetGrid = shirtGrid;
+                        cleanName = p.name.split('-')[1] || p.name;
+                        displayPrice = 'TWD 2100';
+                    } else {
+                        displayPrice = `TWD ${p.price} (餘${p.stock})`;
+                    }
+
+                    if (p.stock <= 0) {
+                        btn.className = 'block-btn disabled';
+                        btn.innerHTML = `<div>${cleanName}</div><div class="price-tag">已售完</div>`;
+                    } else {
+                        btn.className = 'block-btn';
+                        btn.dataset.id = p.id;
+                        btn.innerHTML = `<div>${cleanName}</div><div class="price-tag">${displayPrice}</div>`;
+                        btn.addEventListener('click', function() { this.classList.toggle('active'); });
+                    }
+
+                    targetGrid.appendChild(btn);
+                });
+            } catch (err) {
+                document.getElementById('pillowGrid').innerHTML = '資料載入失敗';
+            }
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const customerName = document.getElementById('customerName').value.trim();
+            const instagramId = document.getElementById('instagramId').value.trim();
+            const items = [];
+
+            const activeButtons = document.querySelectorAll('.block-btn.active');
+            activeButtons.forEach(btn => {
+                items.push({
+                    productId: parseInt(btn.dataset.id),
+                    quantity: 1
+                });
+            });
+
+            if (items.length === 0) {
+                showMessage("請至少點選一項商品讓它亮起再送出！", false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customerName, instagramId, items })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(result.message, true);
+                    document.getElementById('customerName').value = '';
+                    document.getElementById('instagramId').value = '';
+                    fetchProducts();
+                } else {
+                    showMessage(result.message, false);
+                }
+            } catch (err) {
+                showMessage("網路連線錯誤，請確定後端 app.py 還在執行中。", false);
+            }
+        });
+
+        function exportToExcel() {
+            window.location.href = `${API_URL}/export-excel`;
+        }
+
+        checkAdminAccess();
+        fetchProducts();
+    </script>
+</body>
+</html>
