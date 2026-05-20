@@ -16,13 +16,61 @@
         .admin-panel { background: #fff3cd; border: 1px solid #ffeba2; padding: 20px; border-radius: 8px; margin-top: 30px; display: none; }
         .note-orange { color: #fd7e14; font-size: 0.9rem; font-weight: bold; margin-top: 2px; }
         
-        /* 🚫 新增：當商品被禁用的時候，讓整個大按鈕變成灰色且滑鼠變禁止符號 */
+        /* 🚫 無庫存商品變灰色 */
         .btn-check:disabled + .btn-outline-primary {
             background-color: #e9ecef !important;
             border-color: #ced4da !important;
             color: #6c757d !important;
             cursor: not-allowed !important;
             opacity: 0.7;
+        }
+
+        /* 🔵 成員/款式選擇器容器 */
+        .input-note-container {
+            display: none;
+            background: #fdfdfd;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            margin-top: -4px;
+            margin-bottom: 5px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .has-note-open {
+            border-radius: 8px 8px 0 0 !important;
+        }
+
+        /* 🔘 9位成員圓角按鈕排版 */
+        .member-options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .member-btn {
+            border: 1px solid #ced4da;
+            background-color: #fff;
+            color: #495057;
+            padding: 6px 0;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border-radius: 20px; /* 膠囊圓圈造型 */
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .member-btn:hover {
+            border-color: #0056b3;
+            color: #0056b3;
+            background-color: #f0f7ff;
+        }
+        /* 當點選成員按鈕後的 Super Junior 經典寶藍色高亮 */
+        .member-btn.selected {
+            background-color: #0056b3 !important;
+            border-color: #0056b3 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 6px rgba(0,86,179,0.3);
         }
     </style>
 </head>
@@ -33,7 +81,7 @@
         <h3 class="text-center mb-2 font-weight-bold" style="color: #0056b3;">Super Junior 超市周邊代購</h3>
         <p class="text-center text-danger small fw-bold mb-4">（⚠️ 請注意：最少需選購 3 個品項方可送出訂單）</p>
         
-        <form id="orderForm">
+        <form id="orderForm" onsubmit="event.preventDefault(); submitOrder();">
             <div class="mb-3">
                 <label class="form-label fw-bold">訂購人姓名</label>
                 <input type="text" class="form-control" id="customerName" placeholder="請輸入您的姓名或暱稱" required>
@@ -47,7 +95,7 @@
             <div class="section-title text-center">所有商品</div>
             <div class="product-list" id="grid-others"></div>
 
-            <button type="button" class="btn btn-primary w-100 py-2 mt-4 fw-bold" onclick="submitOrder()">確認送出訂單</button>
+            <button type="submit" class="btn btn-primary w-100 py-2 mt-4 fw-bold">確認送出訂單</button>
         </form>
     </div>
 
@@ -60,6 +108,10 @@
 
 <script>
     let allProducts = [];
+    // 寶藍家族 9 位成員清單
+    const sjMembers = ["利特", "希澈", "藝聲", "神童", "銀赫", "東海", "始源", "厲旭", "圭賢"];
+    // 磁鐵 2 選 1 款式清單
+    const magnetStyles = ["超市款", "SJ LOGO款"];
 
     window.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -105,19 +157,47 @@
 
         products.forEach(p => {
             let noteHtml = '';
+            let inputFieldHtml = '';
+            
+            // 情況 A：需要選「成員」的品項
             if (p.name.includes('手燈套') || p.name.includes('20糰') || p.name.includes('抱枕') || p.name.includes('襯衫') || p.name.includes('COUPON SET')) {
-                noteHtml = `<span class="note-orange">私訊成員</span>`;
-            } else if (p.name.includes('2選1')) {
-                noteHtml = `<span class="note-orange">私訊款式</span>`;
+                noteHtml = `<span class="note-orange">請選擇指定成員</span>`;
+                
+                let memberButtons = sjMembers.map(m => 
+                    `<div class="member-btn" onclick="selectOption(${p.id}, '${m}', this)">${m}</div>`
+                ).join('');
+
+                inputFieldHtml = `
+                    <div class="input-note-container" id="note-box-${p.id}">
+                        <label class="small fw-bold text-primary mb-1">💙 請點選一位成員：</label>
+                        <div class="member-options-grid">${memberButtons}</div>
+                        <input type="hidden" id="note-input-${p.id}" value="">
+                    </div>
+                `;
+            } 
+            // 情況 B：需要選「款式」的品項 (磁鐵2選1)
+            else if (p.name.includes('2選1')) {
+                noteHtml = `<span class="note-orange">請選擇磁鐵款式</span>`;
+                
+                let styleButtons = magnetStyles.map(s => 
+                    `<div class="member-btn" style="border-radius: 8px; padding: 8px 0;" onclick="selectOption(${p.id}, '${s}', this)">${s}</div>`
+                ).join('');
+
+                inputFieldHtml = `
+                    <div class="input-note-container" id="note-box-${p.id}">
+                        <label class="small fw-bold text-primary mb-1">🛒 請點選一款樣式：</label>
+                        <div class="d-flex gap-2 mt-1">${styleButtons}</div>
+                        <input type="hidden" id="note-input-${p.id}" value="">
+                    </div>
+                `;
             }
 
-            // ✨ 新增判斷：如果庫存小於等於 0，就加上 disabled 屬性讓核取方塊與按鈕失效
             const isDisabled = p.stock <= 0 ? 'disabled' : '';
 
             const html = `
-                <div>
-                    <input type="checkbox" class="btn-check" id="btn-check-${p.id}" autocomplete="off" value="${p.id}" ${isDisabled}>
-                    <label class="btn btn-outline-primary w-100 d-flex justify-content-between align-items-center" for="btn-check-${p.id}">
+                <div class="product-item-group">
+                    <input type="checkbox" class="btn-check" id="btn-check-${p.id}" autocomplete="off" value="${p.id}" ${isDisabled} onchange="toggleNoteInput(${p.id})">
+                    <label class="btn btn-outline-primary w-100 d-flex justify-content-between align-items-center" for="btn-check-${p.id}" id="label-${p.id}">
                         <div class="d-flex flex-column">
                             <span class="fw-bold text-dark" style="font-size:1.05rem;">${p.name}</span>
                             ${noteHtml}
@@ -125,10 +205,46 @@
                         </div>
                         <span class="badge ${p.stock > 0 ? 'bg-secondary' : 'bg-danger'} p-2" style="font-size:0.8rem;">庫存: ${p.stock}</span>
                     </label>
+                    ${inputFieldHtml}
                 </div>
             `;
             gridOthers.insertAdjacentHTML('beforeend', html);
         });
+    }
+
+    // ✨ 新增：當點擊成員或款式按鈕時觸發的高亮與數值綁定邏輯
+    function selectOption(productId, value, element) {
+        // 先找到目前商品容器下所有的按鈕，把別人的高亮(selected)取消掉
+        const parentBox = document.getElementById(`note-box-${productId}`);
+        const allButtons = parentBox.querySelectorAll('.member-btn');
+        allButtons.forEach(btn => btn.classList.remove('selected'));
+        
+        // 幫目前被點擊的按鈕加上高亮經典寶藍色
+        element.classList.add('selected');
+        
+        // 將選中的名字填入隱藏的 input 中
+        document.getElementById(`note-input-${productId}`).value = value;
+    }
+
+    function toggleNoteInput(productId) {
+        const checkBox = document.getElementById(`btn-check-${productId}`);
+        const noteBox = document.getElementById(`note-box-${productId}`);
+        const noteInput = document.getElementById(`note-input-${productId}`);
+        const label = document.getElementById(`label-${productId}`);
+
+        if (!noteBox) return;
+
+        if (checkBox.checked) {
+            noteBox.style.display = 'block';
+            label.classList.add('has-note-open');
+        } else {
+            noteBox.style.display = 'none';
+            noteInput.value = ''; // 取消勾選時清空資料
+            label.classList.remove('has-note-open');
+            // 同時取消所有子按鈕的高亮狀態
+            const allButtons = noteBox.querySelectorAll('.member-btn');
+            allButtons.forEach(btn => btn.classList.remove('selected'));
+        }
     }
 
     function submitOrder() {
@@ -147,9 +263,35 @@
         }
 
         const items = [];
+        let missingNote = false;
+        let missingNoteProductName = "";
+
         checkedBoxes.forEach(cb => {
-            items.push({ productId: parseInt(cb.value), quantity: 1 });
+            const pId = parseInt(cb.value);
+            const noteInput = document.getElementById(`note-input-${pId}`);
+            let noteValue = '';
+
+            if (noteInput) {
+                noteValue = noteInput.value.trim();
+                if (!noteValue) {
+                    missingNote = true;
+                    // 抓取商品名稱方便提示粉絲哪一項沒選
+                    const label = document.getElementById(`label-${pId}`);
+                    missingNoteProductName = label.querySelector('.fw-bold').innerText;
+                }
+            }
+
+            items.push({
+                productId: pId,
+                quantity: 1,
+                note: noteValue
+            });
         });
+
+        if (missingNote) {
+            alert(`❌ 下單失敗：\n您勾選了『${missingNoteProductName}』，但尚未點選指定的成員或款式！`);
+            return;
+        }
 
         fetch('/api/order', {
             method: 'POST',

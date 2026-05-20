@@ -61,6 +61,8 @@ def create_order():
         return jsonify({"success": False, "message": "下單失敗：最少需選擇 3 個品項才能送出訂單！"}), 400
 
     data = load_data()
+    
+    # 檢查庫存
     for item in items:
         p_id = int(item.get('productId'))
         qty = int(item.get('quantity'))
@@ -72,13 +74,24 @@ def create_order():
 
     order_details = []
     grand_total = 0
+    
+    #扣庫存並合併說明欄位
     for item in items:
         p_id = int(item.get('productId'))
         qty = int(item.get('quantity'))
+        note = item.get('note', '').strip() # 取得前端傳來的輸入說明
+        
         product = next((p for p in data["products"] if p["id"] == p_id), None)
         product["stock"] -= qty
         grand_total += product["price"] * qty
-        order_details.append(f"{product['name']}x{qty}")
+        
+        # ✨ 如果有填寫說明，就合併到商品名稱後面
+        if note:
+            item_summary = f"{product['name']}(備註:{note})x{qty}"
+        else:
+            item_summary = f"{product['name']}x{qty}"
+            
+        order_details.append(item_summary)
 
     now = datetime.now()
     time_prefix = now.strftime('%y%m%d%H%M')
@@ -90,7 +103,7 @@ def create_order():
         "orderId": order_id,
         "customerName": customer_name,
         "instagramId": instagram_id,
-        "productSummary": " + ".join(order_details),
+        "productSummary": " + ".join(order_details), # 這裡會直接包含備註資訊
         "totalPrice": grand_total,
         "orderTime": now.strftime('%Y-%m-%d %H:%M:%S')
     }
@@ -98,15 +111,12 @@ def create_order():
     save_data(data)
     return jsonify({"success": True, "message": f"🎉 下單成功！單號：{order_id}"})
 
-# 🔒 新增：免開 Shell 的安全資料重置 API
 @app.route('/api/reset-database', methods=['POST'])
 def reset_database():
     req_data = request.get_json() or {}
     password = req_data.get('password', '')
-    if password != 'sj888':  # 管理員密碼
+    if password != 'sj888':
         return jsonify({"success": False, "message": "密碼錯誤，拒絕重置！"}), 403
-    
-    # 重新寫入初始設定，達到清空效果
     default_data = get_default_data()
     save_data(default_data)
     return jsonify({"success": True, "message": "🚀 系統重置成功！測試訂單已清空，所有庫存已恢復初始狀態！"})
@@ -117,7 +127,7 @@ def export_excel():
     orders = data.get("orders", [])
     if not orders:
         return "<script>alert('目前後台沒有任何訂單可供匯出！'); window.history.back();</script>"
-    csv_lines = ["訂單編號,顧客姓名,IG帳號,購買商品明細,總金額,下單時間"]
+    csv_lines = ["訂單編號,顧客姓名,IG帳號,購買商品明細(含備註),總金額,下單時間"]
     for order in orders:
         ig = order.get('instagramId', '')
         line = f"{order['orderId']},{order['customerName']},{ig},{order['productSummary']},{order['totalPrice']},{order['orderTime']}"
