@@ -75,17 +75,15 @@ def create_order():
     order_details = []
     grand_total = 0
     
-    #扣庫存並合併說明欄位
     for item in items:
         p_id = int(item.get('productId'))
         qty = int(item.get('quantity'))
-        note = item.get('note', '').strip() # 取得前端傳來的輸入說明
+        note = item.get('note', '').strip()
         
         product = next((p for p in data["products"] if p["id"] == p_id), None)
         product["stock"] -= qty
         grand_total += product["price"] * qty
         
-        # ✨ 如果有填寫說明，就合併到商品名稱後面
         if note:
             item_summary = f"{product['name']}(備註:{note})x{qty}"
         else:
@@ -99,11 +97,12 @@ def create_order():
     sequence_number = len(same_time_orders) + 1
     order_id = f"{time_prefix}{sequence_number:03d}"
 
+    # 🔄 ✨ 重點調整：品項之間改用 "\n" 換行字元串接，不再用加號
     new_order = {
         "orderId": order_id,
         "customerName": customer_name,
         "instagramId": instagram_id,
-        "productSummary": " + ".join(order_details), # 這裡會直接包含備註資訊
+        "productSummary": "\n".join(order_details), 
         "totalPrice": grand_total,
         "orderTime": now.strftime('%Y-%m-%d %H:%M:%S')
     }
@@ -127,11 +126,16 @@ def export_excel():
     orders = data.get("orders", [])
     if not orders:
         return "<script>alert('目前後台沒有任何訂單可供匯出！'); window.history.back();</script>"
+    
     csv_lines = ["訂單編號,顧客姓名,IG帳號,購買商品明細(含備註),總金額,下單時間"]
     for order in orders:
         ig = order.get('instagramId', '')
-        line = f"{order['orderId']},{order['customerName']},{ig},{order['productSummary']},{order['totalPrice']},{order['orderTime']}"
+        summary = order.get('productSummary', '')
+        
+        # 🔄 ✨ 重點調整：因為商品明細裡面有換行符號，在 CSV 中必須用雙引號 "" 包裹起來，Excel 才能正確識別在同一格內換行
+        line = f"{order['orderId']},{order['customerName']},{ig},\"{summary}\",{order['totalPrice']},{order['orderTime']}"
         csv_lines.append(line)
+        
     csv_content = "\n".join(csv_lines)
     bom_content = b'\xef\xbb\xbf' + csv_content.encode('utf-8')
     today = datetime.now().strftime('%Y-%m-%d')
