@@ -14,14 +14,15 @@
         .btn-outline-primary { border-color: #dee2e6; color: #495057; background-color: #fff; transition: all 0.2s; font-size: 1rem; padding: 15px; text-align: left; border-radius: 8px; }
         .btn-outline-primary:hover { border-color: #0056b3; color: #0056b3; background-color: #f0f7ff; }
         .admin-panel { background: #fff3cd; border: 1px solid #ffeba2; padding: 20px; border-radius: 8px; margin-top: 30px; display: none; }
+        .member-note { color: #fd7e14; font-size: 0.9rem; font-weight: bold; margin-top: 2px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="order-container" id="userFormSection">
-        <h3 class="text-center mb-2 font-weight-bold" style="color: #0056b3;">Super Junior 日本周邊代購填單</h3>
-        <p class="text-center text-danger small fw-bold mb-4">（⚠️ 請注意：本團每單最少需選購 3 個品項方可送出訂單）</p>
+        <h3 class="text-center mb-2 font-weight-bold" style="color: #0056b3;">Super Junior 超市周邊代購填單</h3>
+        <p class="text-center text-danger small fw-bold mb-4">（⚠️ 請注意：最少需選購 3 個品項方可送出訂單）</p>
         
         <form id="orderForm">
             <div class="mb-3">
@@ -68,15 +69,22 @@
 
     function renderGrids(products) {
         const gridOthers = document.getElementById('grid-others');
-        gridOthers.innerHTML = ''; // 清空舊資料
+        gridOthers.innerHTML = '';
 
         products.forEach(p => {
+            // 檢查是否為需要標記「私訊成員」的特定四個品項
+            let memberNoteHtml = '';
+            if (p.name.includes('手燈套') || p.name.includes('20糰') || p.name.includes('抱枕') || p.name.includes('襯衫')) {
+                memberNoteHtml = `<span class="member-note">私訊成員</span>`;
+            }
+
             const html = `
                 <div>
                     <input type="checkbox" class="btn-check" id="btn-check-${p.id}" autocomplete="off" value="${p.id}">
                     <label class="btn btn-outline-primary w-100 d-flex justify-content-between align-items-center" for="btn-check-${p.id}">
                         <div class="d-flex flex-column">
                             <span class="fw-bold text-dark" style="font-size:1.05rem;">${p.name}</span>
+                            ${memberNoteHtml}
                             <span class="text-muted small mt-1">TWD ${p.price}</span>
                         </div>
                         <span class="badge ${p.stock > 0 ? 'bg-secondary' : 'bg-danger'} p-2" style="font-size:0.8rem;">庫存: ${p.stock}</span>
@@ -98,7 +106,6 @@
 
         const checkedBoxes = document.querySelectorAll('.btn-check:checked');
         
-        // ✨ 新增規則：限制至少選 3 個品項才能下單
         if (checkedBoxes.length < 3) {
             alert("❌ 下單失敗：限制每筆訂單最少需勾選 3 個商品品項！您目前僅勾選了 " + checkedBoxes.length + " 項。");
             return;
