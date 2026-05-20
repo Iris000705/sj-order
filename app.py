@@ -10,18 +10,7 @@ def load_data():
     if not os.path.exists(DB_FILE):
         default_data = {
             "products": [
-                # --- 抱枕區 (id: 1~9，單價修改為 1750) ---
-                {"id": 1, "name": "抱枕-利特", "price": 1750, "stock": 10},
-                {"id": 2, "name": "抱枕-希澈", "price": 1750, "stock": 10},
-                {"id": 3, "name": "抱枕-藝聲", "price": 1750, "stock": 10},
-                {"id": 4, "name": "抱枕-神童", "price": 1750, "stock": 10},
-                {"id": 5, "name": "抱枕-銀赫", "price": 1750, "stock": 10},
-                {"id": 6, "name": "抱枕-始源", "price": 1750, "stock": 10},
-                {"id": 7, "name": "抱枕-東海", "price": 1750, "stock": 10},
-                {"id": 8, "name": "抱枕-厲旭", "price": 1750, "stock": 10},
-                {"id": 9, "name": "抱枕-圭賢", "price": 1750, "stock": 10},
-                
-                # --- 19糰區 (id: 10~18，單價修改為 1100) ---
+                # --- 19糰區 (id: 10~18，單價 1100) ---
                 {"id": 10, "name": "19糰-利特", "price": 1100, "stock": 10},
                 {"id": 11, "name": "19糰-希澈", "price": 1100, "stock": 10},
                 {"id": 12, "name": "19糰-藝聲", "price": 1100, "stock": 10},
@@ -32,7 +21,7 @@ def load_data():
                 {"id": 17, "name": "19糰-厲旭", "price": 1100, "stock": 10},
                 {"id": 18, "name": "19糰-圭賢", "price": 1100, "stock": 10},
 
-                # --- 20糰區 (id: 21~29，單價修改為 1100) ---
+                # --- 20糰區 (id: 21~29，單價 1100) ---
                 {"id": 21, "name": "20糰-利特", "price": 1100, "stock": 10},
                 {"id": 22, "name": "20糰-希澈", "price": 1100, "stock": 10},
                 {"id": 23, "name": "20糰-藝聲", "price": 1100, "stock": 10},
@@ -75,7 +64,8 @@ def load_data():
                 {"id": 58, "name": "襯衫-厲旭", "price": 2100, "stock": 10},
                 {"id": 59, "name": "襯衫-圭賢", "price": 2100, "stock": 10},
                 
-                # --- 其他商品區 ---
+                # --- 所有商品區（原其他商品） ---
+                {"id": 100, "name": "抱枕 TWD1390+PHOTO CARD POUCH SET TWD360", "price": 1750, "stock": 10},
                 {"id": 20, "name": "成員磁鐵", "price": 550, "stock": 9},
                 {"id": 240, "name": "超市磁鐵-SJ LOGO款", "price": 750, "stock": 1},
                 {"id": 250, "name": "超市磁鐵-超市款", "price": 750, "stock": 1},
@@ -177,7 +167,6 @@ def export_excel():
         headers={"Content-disposition": f"attachment; filename=order_report_{today}.csv"}
     )
 
-# 💡 以下區塊已針對免費雲端空間進行優化修改
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
