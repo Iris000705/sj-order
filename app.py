@@ -10,63 +10,13 @@ def load_data():
     if not os.path.exists(DB_FILE):
         default_data = {
             "products": [
-                # --- 19糰區 (id: 10~18，單價 1100) ---
-                {"id": 10, "name": "19糰-利特", "price": 1100, "stock": 10},
-                {"id": 11, "name": "19糰-希澈", "price": 1100, "stock": 10},
-                {"id": 12, "name": "19糰-藝聲", "price": 1100, "stock": 10},
-                {"id": 13, "name": "19糰-神童", "price": 1100, "stock": 10},
-                {"id": 14, "name": "19糰-銀赫", "price": 1100, "stock": 10},
-                {"id": 15, "name": "19糰-始源", "price": 1100, "stock": 10},
-                {"id": 16, "name": "19糰-東海", "price": 1100, "stock": 10},
-                {"id": 17, "name": "19糰-厲旭", "price": 1100, "stock": 10},
-                {"id": 18, "name": "19糰-圭賢", "price": 1100, "stock": 10},
-
-                # --- 20糰區 (id: 21~29，單價 1100) ---
-                {"id": 21, "name": "20糰-利特", "price": 1100, "stock": 10},
-                {"id": 22, "name": "20糰-希澈", "price": 1100, "stock": 10},
-                {"id": 23, "name": "20糰-藝聲", "price": 1100, "stock": 10},
-                {"id": 24, "name": "20糰-神童", "price": 1100, "stock": 10},
-                {"id": 25, "name": "20糰-銀赫", "price": 1100, "stock": 10},
-                {"id": 26, "name": "20糰-始源", "price": 1100, "stock": 10},
-                {"id": 27, "name": "20糰-東海", "price": 1100, "stock": 10},
-                {"id": 28, "name": "20糰-厲旭", "price": 1100, "stock": 10},
-                {"id": 29, "name": "20糰-圭賢", "price": 1100, "stock": 10},
-
-                # --- 手燈套區 (id: 31~39，單價 790) ---
-                {"id": 31, "name": "手燈套-利特", "price": 790, "stock": 10},
-                {"id": 32, "name": "手燈套-希澈", "price": 790, "stock": 10},
-                {"id": 33, "name": "手燈套-藝聲", "price": 790, "stock": 10},
-                {"id": 34, "name": "手燈套-神童", "price": 790, "stock": 10},
-                {"id": 35, "name": "手燈套-銀赫", "price": 790, "stock": 10},
-                {"id": 36, "name": "手燈套-始源", "price": 790, "stock": 10},
-                {"id": 37, "name": "手燈套-東海", "price": 790, "stock": 10},
-                {"id": 38, "name": "手燈套-厲旭", "price": 790, "stock": 10},
-                {"id": 39, "name": "手燈套-圭賢", "price": 790, "stock": 10},
-
-                # --- 杯套區 (id: 41~49，單價 300) ---
-                {"id": 41, "name": "杯套-利特", "price": 300, "stock": 10},
-                {"id": 42, "name": "杯套-希澈", "price": 300, "stock": 10},
-                {"id": 43, "name": "杯套-藝聲", "price": 300, "stock": 10},
-                {"id": 44, "name": "杯套-神童", "price": 300, "stock": 10},
-                {"id": 45, "name": "杯套-銀赫", "price": 300, "stock": 10},
-                {"id": 46, "name": "杯套-始源", "price": 300, "stock": 10},
-                {"id": 48, "name": "杯套-厲旭", "price": 300, "stock": 10},
-                {"id": 49, "name": "杯套-圭賢", "price": 300, "stock": 10},
-                
-                # --- 襯衫區 (id: 51~59，單價 2100) ---
-                {"id": 51, "name": "襯衫-利特", "price": 2100, "stock": 10},
-                {"id": 52, "name": "襯衫-希澈", "price": 2100, "stock": 10},
-                {"id": 53, "name": "襯衫-藝聲", "price": 2100, "stock": 10},
-                {"id": 54, "name": "襯衫-神童", "price": 2100, "stock": 10},
-                {"id": 55, "name": "襯衫-銀赫", "price": 2100, "stock": 10},
-                {"id": 56, "name": "襯衫-始源", "price": 2100, "stock": 10},
-                {"id": 57, "name": "襯衫-東海", "price": 2100, "stock": 10},
-                {"id": 58, "name": "襯衫-厲旭", "price": 2100, "stock": 10},
-                {"id": 59, "name": "襯衫-圭賢", "price": 2100, "stock": 10},
-                
-                # --- 所有商品區（原其他商品） ---
+                # --- 所有商品區（全部整合至此，預設數量 1 或原指定數量） ---
                 {"id": 100, "name": "抱枕 TWD1390+PHOTO CARD POUCH SET TWD360", "price": 1750, "stock": 10},
-                {"id": 20, "name": "成員磁鐵", "price": 550, "stock": 9},
+                {"id": 101, "name": "成員ID證件照 TWD420", "price": 420, "stock": 1},
+                {"id": 102, "name": "20糰 TWD780+成員四格照片TWD320(不拆)", "price": 1100, "stock": 1},
+                {"id": 103, "name": "手燈套 TWD790", "price": 790, "stock": 1},
+                {"id": 104, "name": "襯衫 TWD2100", "price": 2100, "stock": 1},
+                {"id": 20, "name": "成員磁鐵", "price": 550, "stock": 1},
                 {"id": 240, "name": "超市磁鐵-SJ LOGO款", "price": 750, "stock": 1},
                 {"id": 250, "name": "超市磁鐵-超市款", "price": 750, "stock": 1},
                 {"id": 220, "name": "娃包", "price": 350, "stock": 5},
