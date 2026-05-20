@@ -10,26 +10,37 @@ def load_data():
     if not os.path.exists(DB_FILE):
         default_data = {
             "products": [
-                # --- 最新修正代購品項清單 ---
+                # --- 1. 抱枕組 ---
                 {"id": 100, "name": "抱枕 TWD1390+PHOTO CARD POUCH SET TWD360(不拆)", "price": 1750, "stock": 1},
+                
+                # --- 2. 20糰組 ---
                 {"id": 102, "name": "20糰 TWD780+成員四格照片TWD320(不拆)", "price": 1100, "stock": 1},
-                {"id": 103, "name": "手燈套 TWD780+成員ID證件照 TWD420(不拆)", "price": 1200, "stock": 1}, # 名稱修正，金額改為 1200
+                
+                # --- 3. 手燈套組 ---
+                {"id": 103, "name": "手燈套 TWD780+成員ID證件照 TWD420(不拆)", "price": 1200, "stock": 1},
+                
+                # --- 4. ✨ 新增組合：COUPON + 立牌組 (移到手燈套下方) ---
+                {"id": 106, "name": "COUPON SET+ACRYLIC STAND SET", "price": 1280, "stock": 1}, # 金額改為 1280
+                
+                # --- 5. 襯衫 ---
                 {"id": 104, "name": "襯衫 TWD2100", "price": 2100, "stock": 1},
                 
-                # --- 其它保留周邊 ---
+                # --- 6. 磁鐵（改名與移位：放到 COUPON 組的上一個） ---
                 {"id": 20, "name": "隨機成員磁鐵", "price": 550, "stock": 1},
                 {"id": 250, "name": "超市磁鐵-超市款/SJ LOGO款 2選1", "price": 750, "stock": 1},
-                {"id": 220, "name": "娃包", "price": 350, "stock": 5},
-                {"id": 230, "name": "帽子", "price": 1190, "stock": 1},
                 
-                # --- 追加周邊品項 ---
-                {"id": 105, "name": "COUPON SET", "price": 430, "stock": 1},
-                {"id": 106, "name": "ACRYLIC STAND SET", "price": 850, "stock": 1},
-                {"id": 107, "name": "RANDOM PACKAGE KEYRING", "price": 300, "stock": 1},
-                {"id": 108, "name": "RANDOM MALRANG KEYRING", "price": 150, "stock": 1},
+                # --- 7. ✨ 新增組合：鑰匙圈二合一組 ---
+                {"id": 107, "name": "RANDOM PACKAGE KEYRING+RANDOM MALRANG KEYRING", "price": 450, "stock": 1}, # 金額改為 450
+                
+                # --- 8. 隨機壓克力鑰匙圈 ---
                 {"id": 109, "name": "RANDOM ACRYLIC KEYRING", "price": 300, "stock": 5},
-                {"id": 110, "name": "RANDOM TRADING CARD SET (紅版)", "price": 250, "stock": 3},
-                {"id": 111, "name": "RANDOM TRADING CARD SET (黃版)", "price": 250, "stock": 3}
+                
+                # --- 9. ✨ 新增組合：小卡紅黃整合版 ---
+                {"id": 110, "name": "RANDOM TRADING CARD SET (紅版+黃版)", "price": 500, "stock": 1}, # 金額改為 500
+                
+                # --- 10. 娃包與帽子 ---
+                {"id": 220, "name": "娃包", "price": 350, "stock": 5},
+                {"id": 230, "name": "帽子", "price": 1190, "stock": 1}
             ],
             "orders": []
         }
@@ -50,6 +61,7 @@ def index():
 
 @app.route('/api/products', methods=['GET'])
 def get_products():
+    # 每次前端要求資料時，都直接回傳上面寫好、排好順序的清單
     data = load_data()
     return jsonify(data["products"])
 
@@ -64,7 +76,7 @@ def create_order():
         return jsonify({"success": False, "message": "請填寫完整正確的訂購資訊(姓名與IG皆為必填)"}), 400
 
     if len(items) < 3:
-        return jsonify({"success": False, "message": "下單失敗：本團最少需選擇 3 個品項才能送出訂單！"}), 400
+        return jsonify({"success": False, "message": "下單失敗：最少需選擇 3 個品項才能送出訂單！"}), 400
 
     data = load_data()
     
