@@ -15,6 +15,15 @@
         .btn-outline-primary:hover { border-color: #0056b3; color: #0056b3; background-color: #f0f7ff; }
         .admin-panel { background: #fff3cd; border: 1px solid #ffeba2; padding: 20px; border-radius: 8px; margin-top: 30px; display: none; }
         .note-orange { color: #fd7e14; font-size: 0.9rem; font-weight: bold; margin-top: 2px; }
+        
+        /* 🚫 新增：當商品被禁用的時候，讓整個大按鈕變成灰色且滑鼠變禁止符號 */
+        .btn-check:disabled + .btn-outline-primary {
+            background-color: #e9ecef !important;
+            border-color: #ced4da !important;
+            color: #6c757d !important;
+            cursor: not-allowed !important;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
@@ -67,12 +76,12 @@
             .catch(err => console.error("無法取得商品列表:", err));
     });
 
-    // 🔒 監聽鍵盤快捷鍵：同時按下 Ctrl + Shift + R (Mac 為 Cmd + Shift + R) 觸發秘密重置
+    // 🔒 秘密重置快捷鍵監聽 (Ctrl + Shift + R)
     window.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'r') {
-            e.preventDefault(); // 阻止瀏覽器預設刷新
+            e.preventDefault();
             const pwd = prompt("🕵️‍♂️ 觸發系統資料重置模組\n請輸入後台管理密碼以清空所有訂單並還原庫存：");
-            if (pwd === null) return; // 取消
+            if (pwd === null) return;
             
             fetch('/api/reset-database', {
                 method: 'POST',
@@ -102,9 +111,12 @@
                 noteHtml = `<span class="note-orange">私訊款式</span>`;
             }
 
+            // ✨ 新增判斷：如果庫存小於等於 0，就加上 disabled 屬性讓核取方塊與按鈕失效
+            const isDisabled = p.stock <= 0 ? 'disabled' : '';
+
             const html = `
                 <div>
-                    <input type="checkbox" class="btn-check" id="btn-check-${p.id}" autocomplete="off" value="${p.id}">
+                    <input type="checkbox" class="btn-check" id="btn-check-${p.id}" autocomplete="off" value="${p.id}" ${isDisabled}>
                     <label class="btn btn-outline-primary w-100 d-flex justify-content-between align-items-center" for="btn-check-${p.id}">
                         <div class="d-flex flex-column">
                             <span class="fw-bold text-dark" style="font-size:1.05rem;">${p.name}</span>
