@@ -19,24 +19,24 @@ def load_data():
                 # --- 3. 手燈套組 ---
                 {"id": 103, "name": "手燈套 TWD780+成員ID證件照 TWD420(不拆)", "price": 1200, "stock": 1},
                 
-                # --- 4. ✨ 新增組合：COUPON + 立牌組 (移到手燈套下方) ---
-                {"id": 106, "name": "COUPON SET+ACRYLIC STAND SET", "price": 1280, "stock": 1}, # 金額改為 1280
+                # --- 4. COUPON + 立牌組 ---
+                {"id": 106, "name": "COUPON SET+ACRYLIC STAND SET", "price": 1280, "stock": 1},
                 
                 # --- 5. 襯衫 ---
                 {"id": 104, "name": "襯衫 TWD2100", "price": 2100, "stock": 1},
                 
-                # --- 6. 磁鐵（改名與移位：放到 COUPON 組的上一個） ---
+                # --- 6. 磁鐵 ---
                 {"id": 20, "name": "隨機成員磁鐵", "price": 550, "stock": 1},
                 {"id": 250, "name": "超市磁鐵-超市款/SJ LOGO款 2選1", "price": 750, "stock": 1},
                 
-                # --- 7. ✨ 新增組合：鑰匙圈二合一組 ---
-                {"id": 107, "name": "RANDOM PACKAGE KEYRING+RANDOM MALRANG KEYRING", "price": 450, "stock": 1}, # 金額改為 450
+                # --- 7. 鑰匙圈二合一組 ---
+                {"id": 107, "name": "RANDOM PACKAGE KEYRING+RANDOM MALRANG KEYRING", "price": 450, "stock": 1},
                 
                 # --- 8. 隨機壓克力鑰匙圈 ---
                 {"id": 109, "name": "RANDOM ACRYLIC KEYRING", "price": 300, "stock": 5},
                 
-                # --- 9. ✨ 新增組合：小卡紅黃整合版 ---
-                {"id": 110, "name": "RANDOM TRADING CARD SET (紅版+黃版)", "price": 500, "stock": 1}, # 金額改為 500
+                # --- 9. 小卡組（✨ 庫存已修正為 3） ---
+                {"id": 110, "name": "RANDOM TRADING CARD SET (紅版+黃版)", "price": 500, "stock": 3},
                 
                 # --- 10. 娃包與帽子 ---
                 {"id": 220, "name": "娃包", "price": 350, "stock": 5},
@@ -61,7 +61,6 @@ def index():
 
 @app.route('/api/products', methods=['GET'])
 def get_products():
-    # 每次前端要求資料時，都直接回傳上面寫好、排好順序的清單
     data = load_data()
     return jsonify(data["products"])
 
