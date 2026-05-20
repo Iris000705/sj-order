@@ -10,17 +10,28 @@ def load_data():
     if not os.path.exists(DB_FILE):
         default_data = {
             "products": [
-                # --- 所有商品區（全部整合至此，預設數量 1 或原指定數量） ---
-                {"id": 100, "name": "抱枕 TWD1390+PHOTO CARD POUCH SET TWD360", "price": 1750, "stock": 10},
+                # --- 原有保留商品（抱枕庫存已改為 1） ---
+                {"id": 100, "name": "抱枕 TWD1390+PHOTO CARD POUCH SET TWD360", "price": 1750, "stock": 1},
                 {"id": 101, "name": "成員ID證件照 TWD420", "price": 420, "stock": 1},
                 {"id": 102, "name": "20糰 TWD780+成員四格照片TWD320(不拆)", "price": 1100, "stock": 1},
                 {"id": 103, "name": "手燈套 TWD790", "price": 790, "stock": 1},
                 {"id": 104, "name": "襯衫 TWD2100", "price": 2100, "stock": 1},
+                
+                # --- ⚠️ 幫你完整保留的舊品項 ---
                 {"id": 20, "name": "成員磁鐵", "price": 550, "stock": 1},
                 {"id": 240, "name": "超市磁鐵-SJ LOGO款", "price": 750, "stock": 1},
                 {"id": 250, "name": "超市磁鐵-超市款", "price": 750, "stock": 1},
                 {"id": 220, "name": "娃包", "price": 350, "stock": 5},
-                {"id": 230, "name": "帽子", "price": 1190, "stock": 1}
+                {"id": 230, "name": "帽子", "price": 1190, "stock": 1},
+                
+                # --- ✨ 本次全新追加的周邊品項 ---
+                {"id": 105, "name": "COUPON SET", "price": 430, "stock": 1},
+                {"id": 106, "name": "ACRYLIC STAND SET", "price": 850, "stock": 1},
+                {"id": 107, "name": "RANDOM PACKAGE KEYRING", "price": 300, "stock": 1},
+                {"id": 108, "name": "RANDOM MALRANG KEYRING", "price": 150, "stock": 1},
+                {"id": 109, "name": "RANDOM ACRYLIC KEYRING", "price": 300, "stock": 5},
+                {"id": 110, "name": "RANDOM TRADING CARD SET (紅版)", "price": 250, "stock": 3},
+                {"id": 111, "name": "RANDOM TRADING CARD SET (黃版)", "price": 250, "stock": 3}
             ],
             "orders": []
         }
