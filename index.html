@@ -32,7 +32,7 @@
             
             <div class="mb-4">
                 <label class="form-label fw-bold">IG 帳號</label>
-                <input type="text" class="form-control" id="instagramId" placeholder="請輸入您的 Instagram 帳號 (例如: sj_official)" required>
+                <input type="text" class="form-control" id="instagramId" placeholder="請輸入您的 Instagram 帳號" required>
             </div>
 
             <div class="section-title text-center">所有商品</div>
@@ -67,19 +67,38 @@
             .catch(err => console.error("無法取得商品列表:", err));
     });
 
+    // 🔒 監聽鍵盤快捷鍵：同時按下 Ctrl + Shift + R (Mac 為 Cmd + Shift + R) 觸發秘密重置
+    window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'r') {
+            e.preventDefault(); // 阻止瀏覽器預設刷新
+            const pwd = prompt("🕵️‍♂️ 觸發系統資料重置模組\n請輸入後台管理密碼以清空所有訂單並還原庫存：");
+            if (pwd === null) return; // 取消
+            
+            fetch('/api/reset-database', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pwd })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(err => alert("重置連線發生異常！"));
+        }
+    });
+
     function renderGrids(products) {
         const gridOthers = document.getElementById('grid-others');
         gridOthers.innerHTML = '';
 
         products.forEach(p => {
             let noteHtml = '';
-            
-            // 判斷哪些商品底下要加「私訊成員」
             if (p.name.includes('手燈套') || p.name.includes('20糰') || p.name.includes('抱枕') || p.name.includes('襯衫') || p.name.includes('COUPON SET')) {
                 noteHtml = `<span class="note-orange">私訊成員</span>`;
-            } 
-            // 判斷哪些商品底下要加「私訊款式」
-            else if (p.name.includes('2選1')) {
+            } else if (p.name.includes('2選1')) {
                 noteHtml = `<span class="note-orange">私訊款式</span>`;
             }
 
@@ -110,18 +129,14 @@
         }
 
         const checkedBoxes = document.querySelectorAll('.btn-check:checked');
-        
         if (checkedBoxes.length < 3) {
-            alert("❌ 下單失敗：限制每筆訂單最少需勾選 3 個商品品項！您目前僅勾選了 " + checkedBoxes.length + " 項。");
+            alert("❌ 下單失敗：限制每筆訂單最少需勾選 3 個商品品項！");
             return;
         }
 
         const items = [];
         checkedBoxes.forEach(cb => {
-            items.push({
-                productId: parseInt(cb.value),
-                quantity: 1
-            });
+            items.push({ productId: parseInt(cb.value), quantity: 1 });
         });
 
         fetch('/api/order', {
@@ -138,10 +153,7 @@
                 alert("❌ 下單失敗：\n" + resData.message);
             }
         })
-        .catch(err => {
-            alert("系統連線發生錯誤，請稍後再試！");
-            console.error(err);
-        });
+        .catch(err => console.error(err));
     }
 </script>
 

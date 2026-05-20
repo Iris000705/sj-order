@@ -6,48 +6,31 @@ from flask import Flask, jsonify, request, Response
 app = Flask(__name__, static_folder='.', static_url_path='')
 DB_FILE = 'database.json'
 
+def get_default_data():
+    return {
+        "products": [
+            {"id": 100, "name": "抱枕 TWD1390+PHOTO CARD POUCH SET TWD360(不拆)", "price": 1750, "stock": 1},
+            {"id": 102, "name": "20糰 TWD780+成員四格照片TWD320(不拆)", "price": 1100, "stock": 1},
+            {"id": 103, "name": "手燈套 TWD780+成員ID證件照 TWD420(不拆)", "price": 1200, "stock": 1},
+            {"id": 106, "name": "COUPON SET+ACRYLIC STAND SET", "price": 1280, "stock": 1},
+            {"id": 104, "name": "襯衫 TWD2100", "price": 2100, "stock": 1},
+            {"id": 20, "name": "隨機成員磁鐵", "price": 550, "stock": 1},
+            {"id": 250, "name": "超市磁鐵-超市款/SJ LOGO款 2選1", "price": 750, "stock": 1},
+            {"id": 107, "name": "RANDOM PACKAGE KEYRING+RANDOM MALRANG KEYRING", "price": 450, "stock": 1},
+            {"id": 109, "name": "RANDOM ACRYLIC KEYRING", "price": 300, "stock": 5},
+            {"id": 110, "name": "RANDOM TRADING CARD SET (紅版+黃版)", "price": 500, "stock": 3},
+            {"id": 220, "name": "娃包", "price": 350, "stock": 5},
+            {"id": 230, "name": "帽子", "price": 1190, "stock": 1}
+        ],
+        "orders": []
+    }
+
 def load_data():
     if not os.path.exists(DB_FILE):
-        default_data = {
-            "products": [
-                # --- 1. 抱枕組 ---
-                {"id": 100, "name": "抱枕 TWD1390+PHOTO CARD POUCH SET TWD360(不拆)", "price": 1750, "stock": 1},
-                
-                # --- 2. 20糰組 ---
-                {"id": 102, "name": "20糰 TWD780+成員四格照片TWD320(不拆)", "price": 1100, "stock": 1},
-                
-                # --- 3. 手燈套組 ---
-                {"id": 103, "name": "手燈套 TWD780+成員ID證件照 TWD420(不拆)", "price": 1200, "stock": 1},
-                
-                # --- 4. COUPON + 立牌組 ---
-                {"id": 106, "name": "COUPON SET+ACRYLIC STAND SET", "price": 1280, "stock": 1},
-                
-                # --- 5. 襯衫 ---
-                {"id": 104, "name": "襯衫 TWD2100", "price": 2100, "stock": 1},
-                
-                # --- 6. 磁鐵 ---
-                {"id": 20, "name": "隨機成員磁鐵", "price": 550, "stock": 1},
-                {"id": 250, "name": "超市磁鐵-超市款/SJ LOGO款 2選1", "price": 750, "stock": 1},
-                
-                # --- 7. 鑰匙圈二合一組 ---
-                {"id": 107, "name": "RANDOM PACKAGE KEYRING+RANDOM MALRANG KEYRING", "price": 450, "stock": 1},
-                
-                # --- 8. 隨機壓克力鑰匙圈 ---
-                {"id": 109, "name": "RANDOM ACRYLIC KEYRING", "price": 300, "stock": 5},
-                
-                # --- 9. 小卡組（✨ 庫存已修正為 3） ---
-                {"id": 110, "name": "RANDOM TRADING CARD SET (紅版+黃版)", "price": 500, "stock": 3},
-                
-                # --- 10. 娃包與帽子 ---
-                {"id": 220, "name": "娃包", "price": 350, "stock": 5},
-                {"id": 230, "name": "帽子", "price": 1190, "stock": 1}
-            ],
-            "orders": []
-        }
+        default_data = get_default_data()
         with open(DB_FILE, 'w', encoding='utf-8') as f:
             json.dump(default_data, f, indent=2, ensure_ascii=False)
         return default_data
-    
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         return json.load(f)
 
@@ -72,13 +55,12 @@ def create_order():
     items = req_data.get('items', [])
 
     if not customer_name or not instagram_id or not items:
-        return jsonify({"success": False, "message": "請填寫完整正確的訂購資訊(姓名與IG皆為必填)"}), 400
+        return jsonify({"success": False, "message": "請填寫完整正確的訂購資訊"}), 400
 
     if len(items) < 3:
         return jsonify({"success": False, "message": "下單失敗：最少需選擇 3 個品項才能送出訂單！"}), 400
 
     data = load_data()
-    
     for item in items:
         p_id = int(item.get('productId'))
         qty = int(item.get('quantity'))
@@ -94,7 +76,6 @@ def create_order():
         p_id = int(item.get('productId'))
         qty = int(item.get('quantity'))
         product = next((p for p in data["products"] if p["id"] == p_id), None)
-        
         product["stock"] -= qty
         grand_total += product["price"] * qty
         order_details.append(f"{product['name']}x{qty}")
@@ -115,8 +96,20 @@ def create_order():
     }
     data["orders"].append(new_order)
     save_data(data)
+    return jsonify({"success": True, "message": f"🎉 下單成功！單號：{order_id}"})
 
-    return jsonify({"success": True, "message": f"🎉 下單成功！單號：{order_id}\n訂購人：{customer_name} ({instagram_id})\n購買明細：{new_order['productSummary']}"})
+# 🔒 新增：免開 Shell 的安全資料重置 API
+@app.route('/api/reset-database', methods=['POST'])
+def reset_database():
+    req_data = request.get_json() or {}
+    password = req_data.get('password', '')
+    if password != 'sj888':  # 管理員密碼
+        return jsonify({"success": False, "message": "密碼錯誤，拒絕重置！"}), 403
+    
+    # 重新寫入初始設定，達到清空效果
+    default_data = get_default_data()
+    save_data(default_data)
+    return jsonify({"success": True, "message": "🚀 系統重置成功！測試訂單已清空，所有庫存已恢復初始狀態！"})
 
 @app.route('/api/export-excel', methods=['GET'])
 def export_excel():
@@ -124,21 +117,15 @@ def export_excel():
     orders = data.get("orders", [])
     if not orders:
         return "<script>alert('目前後台沒有任何訂單可供匯出！'); window.history.back();</script>"
-
     csv_lines = ["訂單編號,顧客姓名,IG帳號,購買商品明細,總金額,下單時間"]
     for order in orders:
         ig = order.get('instagramId', '')
         line = f"{order['orderId']},{order['customerName']},{ig},{order['productSummary']},{order['totalPrice']},{order['orderTime']}"
         csv_lines.append(line)
-    
     csv_content = "\n".join(csv_lines)
     bom_content = b'\xef\xbb\xbf' + csv_content.encode('utf-8')
     today = datetime.now().strftime('%Y-%m-%d')
-    return Response(
-        bom_content,
-        mimetype="text/csv",
-        headers={"Content-disposition": f"attachment; filename=order_report_{today}.csv"}
-    )
+    return Response(bom_content, mimetype="text/csv", headers={"Content-disposition": f"attachment; filename=order_report_{today}.csv"})
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
