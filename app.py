@@ -10,21 +10,19 @@ def load_data():
     if not os.path.exists(DB_FILE):
         default_data = {
             "products": [
-                # --- 原有保留商品（抱枕庫存已改為 1） ---
-                {"id": 100, "name": "抱枕 TWD1390+PHOTO CARD POUCH SET TWD360", "price": 1750, "stock": 1},
-                {"id": 101, "name": "成員ID證件照 TWD420", "price": 420, "stock": 1},
+                # --- 更新後的最新代購品項清單 ---
+                {"id": 100, "name": "抱枕 TWD1390+PHOTO CARD POUCH SET TWD360(不拆)", "price": 1750, "stock": 1},
                 {"id": 102, "name": "20糰 TWD780+成員四格照片TWD320(不拆)", "price": 1100, "stock": 1},
-                {"id": 103, "name": "手燈套 TWD790", "price": 790, "stock": 1},
+                {"id": 103, "name": "手燈套 TWD790+成員ID證件照 TWD420", "price": 1210, "stock": 1}, # 金額整合為 790+420=1210
                 {"id": 104, "name": "襯衫 TWD2100", "price": 2100, "stock": 1},
                 
-                # --- ⚠️ 幫你完整保留的舊品項 ---
-                {"id": 20, "name": "成員磁鐵", "price": 550, "stock": 1},
-                {"id": 240, "name": "超市磁鐵-SJ LOGO款", "price": 750, "stock": 1},
-                {"id": 250, "name": "超市磁鐵-超市款", "price": 750, "stock": 1},
+                # --- 磁鐵與原有周邊變更 ---
+                {"id": 20, "name": "隨機成員磁鐵", "price": 550, "stock": 1}, # 名稱變更，價格庫存不變
+                {"id": 250, "name": "超市磁鐵-超市款/SJ LOGO款 2選1", "price": 750, "stock": 1}, # 整合款
                 {"id": 220, "name": "娃包", "price": 350, "stock": 5},
                 {"id": 230, "name": "帽子", "price": 1190, "stock": 1},
                 
-                # --- ✨ 本次全新追加的周邊品項 ---
+                # --- 其他追加周邊品項 ---
                 {"id": 105, "name": "COUPON SET", "price": 430, "stock": 1},
                 {"id": 106, "name": "ACRYLIC STAND SET", "price": 850, "stock": 1},
                 {"id": 107, "name": "RANDOM PACKAGE KEYRING", "price": 300, "stock": 1},
@@ -64,6 +62,10 @@ def create_order():
 
     if not customer_name or not instagram_id or not items:
         return jsonify({"success": False, "message": "請填寫完整正確的訂購資訊(姓名與IG皆為必填)"}), 400
+
+    # 後端安全檢查：確保至少有 3 個品項
+    if len(items) < 3:
+        return jsonify({"success": False, "message": "下單失敗：本團最少需選擇 3 個品項才能送出訂單！"}), 400
 
     data = load_data()
     

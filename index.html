@@ -20,7 +20,8 @@
 
 <div class="container">
     <div class="order-container" id="userFormSection">
-        <h3 class="text-center mb-4 font-weight-bold" style="color: #0056b3;">Super Junior 日本周邊代購填單</h3>
+        <h3 class="text-center mb-2 font-weight-bold" style="color: #0056b3;">Super Junior 日本周邊代購填單</h3>
+        <p class="text-center text-danger small fw-bold mb-4">（⚠️ 請注意：本團每單最少需選購 3 個品項方可送出訂單）</p>
         
         <form id="orderForm">
             <div class="mb-3">
@@ -67,6 +68,7 @@
 
     function renderGrids(products) {
         const gridOthers = document.getElementById('grid-others');
+        gridOthers.innerHTML = ''; // 清空舊資料
 
         products.forEach(p => {
             const html = `
@@ -81,7 +83,6 @@
                     </label>
                 </div>
             `;
-            // 所有商品一律放入此區
             gridOthers.insertAdjacentHTML('beforeend', html);
         });
     }
@@ -96,8 +97,10 @@
         }
 
         const checkedBoxes = document.querySelectorAll('.btn-check:checked');
-        if (checkedBoxes.length === 0) {
-            alert("請至少勾選一項商品再送出！");
+        
+        // ✨ 新增規則：限制至少選 3 個品項才能下單
+        if (checkedBoxes.length < 3) {
+            alert("❌ 下單失敗：限制每筆訂單最少需勾選 3 個商品品項！您目前僅勾選了 " + checkedBoxes.length + " 項。");
             return;
         }
 
